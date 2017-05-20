@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # https://hub.docker.com/r/jrottenberg/ffmpeg/tags/
 
 for video in *mkv; do
