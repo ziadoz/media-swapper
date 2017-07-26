@@ -14,6 +14,7 @@
 # Examples
 # ffmpeg -i input.mkv -c:v copy -c:a aac -strict experimental -b:a 320k -c:s mov_text -movflags +faststart output.mp4
 # ffmpeg -i input.avi output.mp4
+# find . -type f -name "*.mkv" -not -iwholename "*.AppleDouble*" -not -iwholename "*._*"
 #
 # Subtitles
 # -c:s mov_text
