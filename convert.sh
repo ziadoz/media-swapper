@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 # Links
 # https://hub.docker.com/r/jrottenberg/ffmpeg/tags/
 # https://gist.github.com/pwenzel/d6a0b54b120afac0bd1f
@@ -9,7 +10,13 @@
 # https://superuser.com/questions/525249/convert-avi-to-mp4-keeping-the-same-quality
 # https://github.com/PHP-FFMpeg/PHP-FFMpeg
 # https://hub.docker.com/r/jrottenberg/ffmpeg/tags/
-# Subtitles: -c:s mov_text
+#
+# Examples
+# ffmpeg -i input.mkv -c:v copy -c:a aac -strict experimental -b:a 320k -c:s mov_text -movflags +faststart output.mp4
+# ffmpeg -i input.avi output.mp4
+#
+# Subtitles
+# -c:s mov_text
 
 for video in *mkv; do
     docker run --rm -v="`pwd`:/tmp/workdir" -w="/tmp/workdir" jrottenberg/ffmpeg \
