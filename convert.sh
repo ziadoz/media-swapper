@@ -5,19 +5,24 @@
 # ./convert_video.sh /path/to/videos
 
 VIDEO_PATH=${1:-.}
+BACKUP_DIR="_Backups"
 
 if [ ! -d "$VIDEO_PATH" ]; then
-    echo "ERROR: Directory '${VIDEO_PATH}' does not exist"
+    echo "Directory '${VIDEO_PATH}' does not exist"
     exit 1
 fi
 
 convert_video() {
     local video="$1"
-    local file=$(basename "$video")
     local path=$(dirname "$video")
-    local backup="$path/_Backups"
+    local file=$(basename "$video")
+    local backup="$path/$BACKUP_DIR"
 
-    echo "Processing '${video}'"
+    if [ -e "${video%.*}.mp4" ]; then
+        rm -rf "${video%.*}.mp4"
+    fi
+
+    echo "Processing '$video'"
 
     # Notes:
     # Statistics: -stats, -nostats, -loglevel 0
@@ -36,14 +41,20 @@ convert_video() {
         "${file%.*}.mp4"
 
     if [ "$?" -ne "0" ]; then
-        echo "ERROR: Failed to convert video '${video}'"
+        echo "Failed to convert video '${video}'"
         exit 1
     fi
 
     mkdir -p "$backup"
     mv "$video" "$backup"
 
-    echo "Processed '${video}'"
+    echo "Processed '$video'"
 }
 
-find "$VIDEO_PATH" -type f -name "*.mkv" -not -iwholename "*.AppleDouble*" -not -iwholename "*._*" | while read file; do convert_video "$file"; done
+find "$VIDEO_PATH" \
+    -type f \
+    -name "*.mkv" \
+    -not -iwholename "*.AppleDouble*" \
+    -not -iwholename "*._*" \
+    -not -wholename "*$BACKUP_DIR*" \
+    | while read file; do convert_video "$file"; done
