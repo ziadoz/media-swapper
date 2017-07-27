@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Usage:
+# ./convert_video.sh
+# ./convert_video.sh /path/to/videos
+
 VIDEO_PATH=${1:-.}
 
 if [ ! -d "$VIDEO_PATH" ]; then
@@ -14,11 +18,11 @@ convert_video() {
     local backup="$path/_Backups"
 
     # Notes:
+    # Statistics: -stats
     # Skip Subtitles: -sn
     # Copy Subtitles: -c:s mov_text
 
     docker run --rm -v="$path:/tmp/workdir" -w="/tmp/workdir" jrottenberg/ffmpeg \
-        -stats \
         -i "${file}" \
         -c:v copy \
         -c:a copy \
