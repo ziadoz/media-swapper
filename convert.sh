@@ -26,7 +26,7 @@ convert_video() {
         -i "${file}" \
         -c:v copy \
         -c:a copy \
-        -c:s mov_text
+        -c:s mov_text \
         -movflags \
         +faststart \
         "${file%.*}.mp4"
