@@ -45,6 +45,9 @@ convert_video() {
         ffmpeg -i "${video}" $opts "${video%.*}.mp4"
     elif which avconv > /dev/null; then
         avconv -i "${video}" $opts "${video%.*}.mp4"
+    else
+        echo "Could not locate ffmpeg or avconv"
+        exit 1
     fi
 
     if [ "$?" -ne "0" ]; then
