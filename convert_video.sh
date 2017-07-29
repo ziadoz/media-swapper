@@ -6,7 +6,8 @@
 #
 # Notes:
 # Statistics: -stats, -nostats, -loglevel 0
-# Subtitles: -c:s mov_text, -sn
+# Skip Subtitles: -sn
+# Copy Subtitles: -c:s mov_text
 
 VIDEO_PATH=${1:-.}
 BACKUP_DIR="_Backups"
@@ -31,11 +32,11 @@ convert_video() {
         local path=$(dirname "$video")
         local file=$(basename "$video")
 
-        docker run --rm -v="$path:/tmp/workdir" -w="/tmp/workdir" jrottenberg/ffmpeg -i "${file}" "$opts" "${file%.*}.mp4"
+        docker run --rm -v="$path:/tmp/workdir" -w="/tmp/workdir" jrottenberg/ffmpeg -i "${file}" $opts "${file%.*}.mp4"
     elif which ffmpeg > /dev/null; then
-        ffmpeg -i "${video}" "$opts" "${video%.*}.mp4"
+        ffmpeg -i "${video}" $opts "${video%.*}.mp4"
     elif which avconv > /dev/null; then
-        avconv -i "${video}" "$opts" "${video%.*}.mp4"
+        avconv -i "${video}" $opts "${video%.*}.mp4"
     fi
 
     if [ "$?" -ne "0" ]; then
