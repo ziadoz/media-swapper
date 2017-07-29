@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
+# Convert MKV to MP4
+# Uses Docker image, FFMpeg or AVConv.
+#
 # Usage:
 # ./convert_video.sh
 # ./convert_video.sh /path/to/videos
 #
-# Notes:
+# Flags:
 # Statistics: -stats, -nostats, -loglevel 0
 # Skip Subtitles: -sn
 # Copy Subtitles: -c:s mov_text
