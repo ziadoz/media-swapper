@@ -7,13 +7,16 @@
 # ./convert_video.sh
 # ./convert_video.sh /path/to/videos
 #
-# Flags:
+# Notes:
 # Statistics: -stats, -nostats, -loglevel 0
 # Skip Subtitles: -sn
 # Copy Subtitles: -c:s mov_text
+#
+# Links:
+# https://askubuntu.com/questions/396883/how-to-simply-convert-video-files-i-e-mkv-to-mp4
+# https://andre.blue/blog/converting-avi-to-mp4-with-ffmpeg/
 
 VIDEO_PATH=${1:-.}
-BACKUP_DIR="_Backups"
 
 if [ ! -d "$VIDEO_PATH" ]; then
     echo "Directory '$VIDEO_PATH' does not exist"
@@ -22,14 +25,16 @@ fi
 
 convert_video() {
     local video="$1"
-    local opts="-nostats -loglevel 0 -c:v copy -c:a copy -c:s mov_text -movflags +faststart"
-    local backup="$path/$BACKUP_DIR"
+    local file=$(basename "$video")
+    local extension="${file##*.}"
 
-    if [ -e "${video%.*}.mp4" ]; then
-        rm -rf "${video%.*}.mp4"
+    if [ "$extension" == "mkv" ]; then
+        local opts="-nostats -loglevel 0 -c:v copy -c:a copy -c:s mov_text -movflags +faststart"
+    elif [ "$extension" == "avi" ]; then
+        local opts="-nostats -loglevel 0 -c:a aac -b:a 128k -c:v libx264 -crf 23 -movflags +faststart"
     fi
 
-    echo "Processing '$video'"
+    echo "Processing '$(basename "$video")'"
 
     if which docker > /dev/null; then
         local path=$(dirname "$video")
@@ -46,17 +51,13 @@ convert_video() {
         echo "Failed to convert video '$video'"
         exit 1
     fi
-
-    mkdir -p "$backup"
-    mv "$video" "$backup"
-
-    echo "Processed '$video'"
 }
 
 find "$VIDEO_PATH" \
     -type f \
     -name "*.mkv" \
+    -or \
+    -name "*.avi" \
     -not -iwholename "*.AppleDouble*" \
     -not -iwholename "*._*" \
-    -not -wholename "*$BACKUP_DIR*" \
     | while read file; do convert_video "$file"; done
