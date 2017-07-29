@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
+# Using Docker
 # Usage:
-# ./convert_video.sh
-# ./convert_video.sh /path/to/videos
+# ./convert_video_docker.sh
+# ./convert_video_docker.sh /path/to/videos
 
 VIDEO_PATH=${1:-.}
 BACKUP_DIR="_Backups"
@@ -14,6 +15,8 @@ fi
 
 convert_video() {
     local video="$1"
+    local path=$(dirname "$video")
+    local file=$(basename "$video")
     local backup="$path/$BACKUP_DIR"
 
     if [ -e "${video%.*}.mp4" ]; then
@@ -27,8 +30,8 @@ convert_video() {
     # Skip Subtitles: -sn
     # Copy Subtitles: -c:s mov_text
 
-    ffmpeg \
-        -i "${video}" \
+    docker run --rm -v="$path:/tmp/workdir" -w="/tmp/workdir" jrottenberg/ffmpeg \
+        -i "${file}" \
         -nostats \
         -loglevel 0 \
         -c:v copy \
@@ -36,7 +39,7 @@ convert_video() {
         -c:s mov_text \
         -movflags \
         +faststart \
-        "${video%.*}.mp4"
+        "${file%.*}.mp4"
 
     if [ "$?" -ne "0" ]; then
         echo "Failed to convert video '${video}'"
