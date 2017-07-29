@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# Using Docker
 # Usage:
 # ./convert_video.sh
 # ./convert_video.sh /path/to/videos
