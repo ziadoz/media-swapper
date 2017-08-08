@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Convert MKV/AVI to MP4
+# Convert MKV to MP4
 # Uses Docker FFMpeg, FFMpeg or AVConv.
 #
 # Usage:
@@ -14,7 +14,6 @@
 #
 # Links:
 # https://askubuntu.com/questions/396883/how-to-simply-convert-video-files-i-e-mkv-to-mp4
-# https://andre.blue/blog/converting-avi-to-mp4-with-ffmpeg/
 
 VIDEO_PATH=${1:-.}
 
@@ -27,12 +26,7 @@ convert_video() {
     local video="$1"
     local file=$(basename "$video")
     local extension="${file##*.}"
-
-    if [ "$extension" == "mkv" ]; then
-        local opts="-nostats -loglevel 0 -c:v copy -c:a copy -c:s mov_text -movflags +faststart"
-    elif [ "$extension" == "avi" ]; then
-        local opts="-nostats -loglevel 0 -c:a aac -b:a 128k -c:v libx264 -crf 23 -movflags +faststart"
-    fi
+    local opts="-nostats -loglevel 0 -c:v copy -c:a copy -c:s mov_text -movflags +faststart"
 
     echo "Processing '$(basename "$video")'"
 
@@ -59,8 +53,6 @@ convert_video() {
 find "$VIDEO_PATH" \
     -type f \
     -name "*.mkv" \
-    -or \
-    -name "*.avi" \
     -not -iwholename "*.AppleDouble*" \
     -not -iwholename "*._*" \
     | while read file; do convert_video "$file"; done
