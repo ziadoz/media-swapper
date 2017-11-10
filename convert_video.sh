@@ -24,9 +24,12 @@ fi
 
 convert_video() {
     local video="$1"
-    local file=$(basename "$video")
-    local extension="${file##*.}"
     local opts="-nostats -loglevel 0 -c:v copy -c:a copy -c:s mov_text -movflags +faststart"
+
+    if [ -e "${video%.*}.mp4" ]; then
+        echo "Skipping '$(basename "$video")'"
+        return
+    fi
 
     echo "Processing '$(basename "$video")'"
 
