@@ -15,13 +15,6 @@
 # Links:
 # https://askubuntu.com/questions/396883/how-to-simply-convert-video-files-i-e-mkv-to-mp4
 
-VIDEO_PATH=${1:-.}
-
-if [ ! -d "$VIDEO_PATH" ]; then
-    echo "Directory '$VIDEO_PATH' does not exist"
-    exit 1
-fi
-
 convert_video() {
     local video="$1"
     local opts="-nostats -loglevel 0 -c:v copy -c:a copy -c:s mov_text -movflags +faststart"
@@ -52,6 +45,13 @@ convert_video() {
         exit 1
     fi
 }
+
+VIDEO_PATH=${1:-.}
+
+if [ ! -d "$VIDEO_PATH" ]; then
+    echo "Directory '$VIDEO_PATH' does not exist"
+    exit 1
+fi
 
 find "$VIDEO_PATH" \
     -type f \
