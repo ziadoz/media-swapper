@@ -4,8 +4,8 @@
 # Uses Docker FFMpeg, FFMpeg or AVConv.
 #
 # Usage:
-# ./convert_video.sh
-# ./convert_video.sh /path/to/videos
+# ./mkv2mp4
+# ./mkv2mp4 /path/to/videos
 #
 # Notes:
 # Statistics: -stats, -nostats, -loglevel 0
