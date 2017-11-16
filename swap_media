@@ -1,20 +1,5 @@
 #!/usr/bin/env bash
 
-# Converts MKV to MP4 and M4A to MP3
-# Uses Docker FFMpeg, FFMpeg or AVConv.
-#
-# Usage:
-# ./convert_media
-# ./convert_media /path/to/videos
-#
-# Notes:
-# Statistics: -stats, -nostats, -loglevel 0
-# Skip Subtitles: -sn
-# Copy Subtitles: -c:s mov_text
-#
-# Links:
-# https://askubuntu.com/questions/396883/how-to-simply-convert-video-files-i-e-mkv-to-mp4
-
 convert_media() {
     local file="$1"
 
