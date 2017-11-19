@@ -43,7 +43,7 @@ convert_media() {
     fi
 }
 
-MEDIA_PATH=${1:-.}
+MEDIA_PATH="${1:-.}"
 
 if [ ! -d "$MEDIA_PATH" ]; then
     echo "Directory '$MEDIA_PATH' does not exist"
