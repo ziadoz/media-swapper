@@ -23,18 +23,15 @@ convert_media() {
 
     echo "Processing '$(basename "$file")'"
 
-    if which docker > /dev/null; then
+    if [[ "$MEDIA_BINARY" == "docker" ]]; then
         local filepath=$(dirname "$file")
         local filename=$(basename "$file")
 
         docker run --rm -v="$filepath:/tmp/workdir" -w="/tmp/workdir" jrottenberg/ffmpeg -i "${filename}" $opts "${filename%.*}.mp4"
-    elif which ffmpeg > /dev/null; then
+    elif [[ "$MEDIA_BINARY" == "ffmpeg" ]]; then
         ffmpeg -i "${file}" $opts "${file%.*}.mp4"
-    elif which avconv > /dev/null; then
+    elif [[ "$MEDIA_BINARY" == "avconv" ]]; then
         avconv -i "${file}" $opts "${file%.*}.mp4"
-    else
-        echo "Could not locate Docker, FFMpeg or AVConv"
-        exit 1
     fi
 
     if [ "$?" -ne "0" ]; then
@@ -45,8 +42,21 @@ convert_media() {
 
 MEDIA_PATH="${1:-.}"
 
-if [ ! -d "$MEDIA_PATH" ]; then
+if [[ ! -d "$MEDIA_PATH" ]]; then
     echo "Directory '$MEDIA_PATH' does not exist"
+    exit 1
+fi
+
+if [[ "$(type -p docker)" != "" && "$(docker ps 2>&1)" =~ "CONTAINER ID" ]]; then
+    MEDIA_BINARY="docker"
+elif [[ "$(type -p ffmpeg)" != "" ]]; then
+    MEDIA_BINARY="ffmpeg"
+elif [[ "$(type -p avconv)" != "" ]]; then
+    MEDIA_BINARY="avconv"
+fi
+
+if [[ "$MEDIA_BINARY" == "" ]]; then
+    echo "Could not locate Docker, FFMpeg or AVConv binary"
     exit 1
 fi
 
