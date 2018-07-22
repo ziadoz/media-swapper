@@ -45,12 +45,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	in := make(chan *mp4swap.Cmd)
 	out := make(chan *result)
-
-	for _, input := range files {
-		go queue(input, in)
-		go process(in, out)
+	for _, file := range files {
+		go process(mp4swap.Command(bin.Path, file), out)
 	}
 
 	fmt.Printf("Swapping %d videos: \n", len(files))
@@ -64,12 +61,7 @@ func main() {
 	}
 }
 
-func queue(input string, in chan *mp4swap.Cmd) {
-	in <- mp4swap.Command(bin.Path, input)
-}
-
-func process(in chan *mp4swap.Cmd, out chan *result) {
-	cmd := <-in
+func process(cmd *mp4swap.Cmd, out chan *result) {
 	var cmdout, cmderr bytes.Buffer
 	cmd.Stdout = &cmdout
 	cmd.Stderr = &cmderr
