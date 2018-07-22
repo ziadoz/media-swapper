@@ -48,11 +48,14 @@ func main() {
 	in := make(chan *mp4swap.Cmd)
 	out := make(chan *result)
 
-	go queueCmds(files, in)
-	go processCmds(in, out)
+	for _, input := range files {
+		go queue(input, in)
+		go process(in, out)
+	}
 
 	fmt.Printf("Swapping %d videos: \n", len(files))
-	for result := range out {
+	for i := 0; i < len(files); i++ {
+		result := <-out
 		if result.err != nil {
 			fmt.Printf(" - Failed: %s: %s\n", result.cmd.Input, result.err)
 		} else {
@@ -61,33 +64,26 @@ func main() {
 	}
 }
 
-func queueCmds(files []string, in chan *mp4swap.Cmd) {
-	for _, input := range files {
-		in <- mp4swap.Command(bin.Path, input)
-	}
-
-	close(in)
+func queue(input string, in chan *mp4swap.Cmd) {
+	in <- mp4swap.Command(bin.Path, input)
 }
 
-func processCmds(in chan *mp4swap.Cmd, out chan *result) {
-	for cmd := range in {
-		var cmdout, cmderr bytes.Buffer
-		cmd.Stdout = &cmdout
-		cmd.Stderr = &cmderr
+func process(in chan *mp4swap.Cmd, out chan *result) {
+	cmd := <-in
+	var cmdout, cmderr bytes.Buffer
+	cmd.Stdout = &cmdout
+	cmd.Stderr = &cmderr
 
-		var reserr error
-		if err := cmd.Run(); err != nil {
-			reserr = err
-			if strings.Contains(cmderr.String(), "already exists. Overwrite ? [y/N]") {
-				reserr = fmt.Errorf("mp4 file already exists")
-			}
-		}
-
-		out <- &result{
-			cmd: cmd,
-			err: reserr,
+	var reserr error
+	if err := cmd.Run(); err != nil {
+		reserr = err
+		if strings.Contains(cmderr.String(), "already exists. Overwrite ? [y/N]") {
+			reserr = fmt.Errorf("mp4 file already exists")
 		}
 	}
 
-	close(out)
+	out <- &result{
+		cmd: cmd,
+		err: reserr,
+	}
 }
