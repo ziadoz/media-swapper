@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/ziadoz/media-swapper/pkg/fs"
 	"github.com/ziadoz/media-swapper/pkg/mp4swap"
@@ -45,37 +46,74 @@ func main() {
 		os.Exit(1)
 	}
 
-	out := make(chan *result)
-	for _, file := range files {
-		go process(mp4swap.Command(bin.Path, file), out)
+	workers := len(files) / 2
+	if workers == 0 {
+		workers = 5
 	}
 
 	fmt.Printf("Swapping %d videos: \n", len(files))
-	for i := 0; i < len(files); i++ {
-		result := <-out
+
+	in := make(chan *mp4swap.Cmd)
+	out := make(chan *result)
+	done := make(chan struct{})
+	wg := sync.WaitGroup{}
+
+	go results(out, done)
+	go pool(&wg, workers, in, out)
+	go queue(files, in)
+
+	<-done
+}
+
+func queue(files []string, in chan *mp4swap.Cmd) {
+	for _, file := range files {
+		in <- mp4swap.Command(bin.Path, file)
+	}
+
+	close(in)
+}
+
+func pool(wg *sync.WaitGroup, workers int, in chan *mp4swap.Cmd, out chan *result) {
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go worker(wg, in, out)
+	}
+
+	wg.Wait()
+	close(out)
+}
+
+func worker(wg *sync.WaitGroup, in chan *mp4swap.Cmd, out chan *result) {
+	for cmd := range in {
+		var cmdout, cmderr bytes.Buffer
+		cmd.Stdout = &cmdout
+		cmd.Stderr = &cmderr
+
+		var reserr error
+		if err := cmd.Run(); err != nil {
+			reserr = err
+			if strings.Contains(cmderr.String(), "already exists. Overwrite ? [y/N]") {
+				reserr = fmt.Errorf("mp4 file already exists")
+			}
+		}
+
+		out <- &result{
+			cmd: cmd,
+			err: reserr,
+		}
+	}
+
+	wg.Done()
+}
+
+func results(out chan *result, done chan struct{}) {
+	for result := range out {
 		if result.err != nil {
 			fmt.Printf(" - Failed: %s: %s\n", result.cmd.Input, result.err)
 		} else {
 			fmt.Printf(" - Swapped: %s\n", result.cmd.Input)
 		}
 	}
-}
 
-func process(cmd *mp4swap.Cmd, out chan *result) {
-	var cmdout, cmderr bytes.Buffer
-	cmd.Stdout = &cmdout
-	cmd.Stderr = &cmderr
-
-	var reserr error
-	if err := cmd.Run(); err != nil {
-		reserr = err
-		if strings.Contains(cmderr.String(), "already exists. Overwrite ? [y/N]") {
-			reserr = fmt.Errorf("mp4 file already exists")
-		}
-	}
-
-	out <- &result{
-		cmd: cmd,
-		err: reserr,
-	}
+	done <- struct{}{}
 }
