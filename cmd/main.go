@@ -11,21 +11,21 @@ import (
 	"sync"
 
 	"github.com/ziadoz/media-swapper/pkg/fs"
-	"github.com/ziadoz/media-swapper/pkg/mp4swap"
 	"github.com/ziadoz/media-swapper/pkg/pathflag"
+	"github.com/ziadoz/media-swapper/pkg/swap"
 )
 
 var bin pathflag.Path
 var src pathflag.Path
 
 type result struct {
-	cmd *mp4swap.Cmd
+	cmd *swap.Cmd
 	err error
 }
 
 func init() {
 	flag.Var(&bin, "bin", "The location of the ffmpeg or avconv binary")
-	flag.Var(&src, "src", "The source directory of mkvs or individual mkv file to swap to mp4")
+	flag.Var(&src, "src", "The source directory of mkv/m4a files or an individual mkv/m4a file to swap to mp4/mp3")
 	flag.Parse()
 }
 
@@ -40,9 +40,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	files, err := fs.Find(src, "mkv")
+	files, err := fs.GetSwappableFiles(src)
 	if err != nil || len(files) == 0 {
-		fmt.Fprintf(os.Stderr, "Could not find mkv files: %s\n", err)
+		fmt.Fprintf(os.Stderr, "Could not find mkv/m4a files: %s\n", err)
 		os.Exit(1)
 	}
 
@@ -53,7 +53,7 @@ func main() {
 
 	fmt.Printf("Swapping %d videos: \n", len(files))
 
-	in := make(chan *mp4swap.Cmd)
+	in := make(chan *swap.Cmd)
 	out := make(chan *result)
 	done := make(chan struct{})
 	wg := sync.WaitGroup{}
@@ -65,15 +65,19 @@ func main() {
 	<-done
 }
 
-func queue(files []string, in chan *mp4swap.Cmd) {
+func queue(files []string, in chan *swap.Cmd) {
 	for _, file := range files {
-		in <- mp4swap.Command(bin.Path, file)
+		if fs.IsSwappableVideo(file) {
+			in <- swap.Mp4Command(bin.Path, file)
+		} else if fs.IsSwappableAudio(file) {
+			in <- swap.Mp3Command(bin.Path, file)
+		}
 	}
 
 	close(in)
 }
 
-func pool(wg *sync.WaitGroup, workers int, in chan *mp4swap.Cmd, out chan *result) {
+func pool(wg *sync.WaitGroup, workers int, in chan *swap.Cmd, out chan *result) {
 	for i := 0; i < workers; i++ {
 		wg.Add(1)
 		go worker(wg, in, out)
@@ -83,7 +87,7 @@ func pool(wg *sync.WaitGroup, workers int, in chan *mp4swap.Cmd, out chan *resul
 	close(out)
 }
 
-func worker(wg *sync.WaitGroup, in chan *mp4swap.Cmd, out chan *result) {
+func worker(wg *sync.WaitGroup, in chan *swap.Cmd, out chan *result) {
 	for cmd := range in {
 		var cmdout, cmderr bytes.Buffer
 		cmd.Stdout = &cmdout
