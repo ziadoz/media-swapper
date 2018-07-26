@@ -1,5 +1,5 @@
-// Swap MKV container files to MP4 easily.
-// Usage: mkv2mp4 --src=/path/to/videos --bin=/path/to/ffmpeg
+// Swap MKV/M4A containers to MP4/MP3.
+// Usage: media-swapper --src=/path/to/videos --bin=/path/to/ffmpeg
 package main
 
 import (
