@@ -1,13 +1,11 @@
 // Swap MKV/M4A containers to MP4/MP3.
-// Usage: media-swapper --src=/path/to/videos --bin=/path/to/ffmpeg
+// Usage: media-swapper --src=/path/to/videos --bin=/path/to/ffmpeg-or-avconv
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"os"
-	"strings"
 	"sync"
 
 	"github.com/ziadoz/media-swapper/pkg/fs"
@@ -41,17 +39,22 @@ func main() {
 	}
 
 	files, err := fs.GetSwappableFiles(src)
-	if err != nil || len(files) == 0 {
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "Could not find mkv/m4a files: %s\n", err)
 		os.Exit(1)
 	}
 
-	workers := len(files) / 2
-	if workers == 0 {
-		workers = 5
+	if len(files) == 0 {
+		fmt.Println("No mkv/m4a files were found to swap")
+		return
 	}
 
-	fmt.Printf("Swapping %d videos: \n", len(files))
+	workers := len(files) / 2
+	if workers == 0 {
+		workers = 2
+	}
+
+	fmt.Printf("Swapping %d files: \n", len(files))
 
 	in := make(chan *swap.Cmd)
 	out := make(chan *result)
@@ -89,21 +92,11 @@ func pool(wg *sync.WaitGroup, workers int, in chan *swap.Cmd, out chan *result) 
 
 func worker(wg *sync.WaitGroup, in chan *swap.Cmd, out chan *result) {
 	for cmd := range in {
-		var cmdout, cmderr bytes.Buffer
-		cmd.Stdout = &cmdout
-		cmd.Stderr = &cmderr
-
-		var reserr error
-		if err := cmd.Run(); err != nil {
-			reserr = err
-			if strings.Contains(cmderr.String(), "already exists. Overwrite ? [y/N]") {
-				reserr = fmt.Errorf("mp4 file already exists")
-			}
-		}
+		err := cmd.Run()
 
 		out <- &result{
 			cmd: cmd,
-			err: reserr,
+			err: err,
 		}
 	}
 

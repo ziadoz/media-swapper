@@ -14,7 +14,7 @@ func GetSwappableFiles(src pathflag.Path) ([]string, error) {
 
 	if mode.IsDir() {
 		err := filepath.Walk(src.Path, func(path string, fileinfo os.FileInfo, err error) error {
-			if IsSwappable(path) {
+			if IsSwappable(path) && !IsSwapped(path) {
 				files = append(files, path)
 			}
 
@@ -35,14 +35,26 @@ func SwapExt(path, ext string) string {
 	return strings.TrimSuffix(path, filepath.Ext(path)) + "." + ext
 }
 
-func IsSwappableVideo(file string) bool {
-	return filepath.Ext(file) == ".mkv"
+func IsSwappableVideo(path string) bool {
+	return filepath.Ext(path) == ".mkv"
 }
 
-func IsSwappableAudio(file string) bool {
-	return filepath.Ext(file) == ".m4a"
+func IsSwappableAudio(path string) bool {
+	return filepath.Ext(path) == ".m4a"
 }
 
-func IsSwappable(file string) bool {
-	return IsSwappableVideo(file) || IsSwappableAudio(file)
+func IsSwappable(path string) bool {
+	return IsSwappableVideo(path) || IsSwappableAudio(path)
+}
+
+func IsSwapped(file string) bool {
+	var output string
+	if IsSwappableVideo(file) {
+		output = SwapExt(file, "mp4")
+	} else if IsSwappableAudio(file) {
+		output = SwapExt(file, "mp3")
+	}
+
+	_, err := os.Stat(output)
+	return err == nil
 }

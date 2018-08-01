@@ -42,7 +42,7 @@ func Mp4Command(binary string, input string) *Cmd {
 
 // Command returns a Cmd to convert an M4A to an MP3.
 func Mp3Command(binary string, input string) *Cmd {
-	output := fs.SwapExt(input, "m4a")
+	output := fs.SwapExt(input, "mp3")
 	args := []string{
 		"-i",
 		input,
