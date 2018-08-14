@@ -8,9 +8,9 @@ import (
 	"os"
 	"sync"
 
-	"github.com/ziadoz/media-swapper/pkg/fs"
-	"github.com/ziadoz/media-swapper/pkg/pathflag"
-	"github.com/ziadoz/media-swapper/pkg/swap"
+	"github.com/ziadoz/media-swapper/src/fs"
+	"github.com/ziadoz/media-swapper/src/pathflag"
+	"github.com/ziadoz/media-swapper/src/swap"
 )
 
 const workers int = 4

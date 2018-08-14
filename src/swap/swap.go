@@ -3,7 +3,7 @@ package swap
 import (
 	"os/exec"
 
-	"github.com/ziadoz/media-swapper/pkg/fs"
+	"github.com/ziadoz/media-swapper/src/fs"
 )
 
 type Cmd struct {
