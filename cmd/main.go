@@ -13,6 +13,8 @@ import (
 	"github.com/ziadoz/media-swapper/pkg/swap"
 )
 
+const workers int = 4
+
 var bin pathflag.Path
 var src pathflag.Path
 
@@ -47,11 +49,6 @@ func main() {
 	if len(files) == 0 {
 		fmt.Println("No mkv/m4a files were found to swap")
 		return
-	}
-
-	workers := len(files) / 2
-	if workers == 0 {
-		workers = 2
 	}
 
 	fmt.Printf("Swapping %d files: \n", len(files))
