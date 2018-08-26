@@ -15,8 +15,17 @@ import (
 
 const workers int = 4
 
-var bin pathflag.Path
-var src pathflag.Path
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
+var (
+	ver bool
+	bin pathflag.Path
+	src pathflag.Path
+)
 
 type result struct {
 	cmd *swap.Cmd
@@ -24,12 +33,18 @@ type result struct {
 }
 
 func init() {
+	flag.BoolVar(&ver, "version", false, "The version of media swapper")
 	flag.Var(&bin, "bin", "The location of the ffmpeg or avconv binary")
 	flag.Var(&src, "src", "The source directory of mkv/m4a files or an individual mkv/m4a file to swap to mp4/mp3")
 	flag.Parse()
 }
 
 func main() {
+	if ver {
+		fmt.Printf("Version: %s\nCommit: %s\nDate: %s\n", version, commit, date)
+		os.Exit(0)
+	}
+
 	if bin.Path == "" {
 		fmt.Fprintln(os.Stderr, "The -bin flag must be specified")
 		os.Exit(1)
