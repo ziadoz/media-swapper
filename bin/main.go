@@ -32,14 +32,12 @@ type result struct {
 	err error
 }
 
-func init() {
+func main() {
 	flag.BoolVar(&ver, "version", false, "The version of media swapper")
 	flag.Var(&bin, "bin", "The location of the ffmpeg or avconv binary")
 	flag.Var(&src, "src", "The source directory of mkv/m4a files or an individual mkv/m4a file to swap to mp4/mp3")
 	flag.Parse()
-}
 
-func main() {
 	if ver {
 		fmt.Printf("Version: %s\nCommit: %s\nDate: %s\n", version, commit, date)
 		os.Exit(0)
