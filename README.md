@@ -7,7 +7,7 @@ You'll need to have either [ffmpeg](https://ffmpeg.org/) or [avconv](https://lib
 ## Usage
 You can convert all the media in the current directory by just running the script:
 ```
-./media-swapper --src=/path/to/videos --bin=/path/to/ffmpeg-or-avconv
+./media-swapper --src=/path/to/videos
 ```
 
 You can also specify the binary if required:
