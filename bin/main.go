@@ -44,6 +44,16 @@ func main() {
 	}
 
 	if bin.Path == "" {
+		path, _ := fs.LocateBinary()
+		stat, _ := os.Stat(path)
+
+		bin = pathflag.Path{
+			Path:     path,
+			FileInfo: stat,
+		}
+	}
+
+	if bin.Path == "" {
 		fmt.Fprintln(os.Stderr, "The -bin flag must be specified")
 		os.Exit(1)
 	}

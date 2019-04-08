@@ -1,7 +1,9 @@
 package fs
 
 import (
+	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -57,4 +59,17 @@ func IsSwapped(file string) bool {
 
 	_, err := os.Stat(output)
 	return err == nil
+}
+
+func LocateBinary() (string, error) {
+	for _, bin := range []string{"avconv", "ffmpeg"} {
+		out, err := exec.Command("which", bin).Output()
+		if err != nil {
+			continue
+		}
+
+		return string(out), nil
+	}
+
+	return "", errors.New("Could not locate avconv or ffmpeg binary")
 }
