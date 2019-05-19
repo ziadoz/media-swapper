@@ -71,7 +71,7 @@ func main() {
 
 	if len(files) == 0 {
 		fmt.Println("No mkv/m4a files were found to swap")
-		return
+		os.Exit(0)
 	}
 
 	fmt.Printf("Swapping %d files: \n", len(files))
