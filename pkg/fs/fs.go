@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ziadoz/media-swapper/src/pathflag"
+	"github.com/ziadoz/media-swapper/pkg/pathflag"
 )
 
 func GetSwappableFiles(src pathflag.Path) ([]string, error) {
