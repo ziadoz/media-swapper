@@ -1,7 +1,7 @@
 builds:
 - env:
   - CGO_ENABLED=0
-  main: ./bin/main.go
+  main: ./cmd/main.go
 archive:
   replacements:
     darwin: Darwin
