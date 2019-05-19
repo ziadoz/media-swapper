@@ -63,12 +63,12 @@ func IsSwapped(file string) bool {
 
 func LocateBinary() (string, error) {
 	for _, bin := range []string{"avconv", "ffmpeg"} {
-		out, err := exec.Command("which", bin).Output()
+		path, err := exec.LookPath(bin)
 		if err != nil {
 			continue
 		}
 
-		return string(out), nil
+		return path, nil
 	}
 
 	return "", errors.New("Could not locate avconv or ffmpeg binary")
