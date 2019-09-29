@@ -1,4 +1,4 @@
-# Media Swapper ![](https://github.com/ziadoz/media-swapper/workflows/.github/workflows/release.yml/badge.svg)
+# Media Swapper ![](https://github.com/ziadoz/media-swapper/workflows/GoReleaser/badge.svg)
 A simple Bash script to swap MKV to MP4 and M4A to MP3.
 
 ## Requirements
