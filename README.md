@@ -1,4 +1,4 @@
-# Media Swapper [![Build Status](https://travis-ci.org/ziadoz/media-swapper.svg?branch=master)](https://travis-ci.org/ziadoz/media-swapper)
+# Media Swapper ![](https://github.com/ziadoz/media-swapper/workflows/.github/workflows/release.yml/badge.svg)
 A simple Bash script to swap MKV to MP4 and M4A to MP3.
 
 ## Requirements
