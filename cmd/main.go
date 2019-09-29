@@ -22,10 +22,16 @@ var (
 )
 
 var (
-	ver bool
-	bin pathflag.Path
-	src pathflag.Path
+	ver  bool
+	help bool
+	bin  pathflag.Path
 )
+
+var usage = `Media Swapper is a simple tool for container swapping m4a audio to mp3, and mkv video to mp4.
+
+Usage: media-swapper [--bin=<path>] <path>
+       media-swapper --help
+       media-swapper --version`
 
 type result struct {
 	cmd *swap.Cmd
@@ -34,9 +40,14 @@ type result struct {
 
 func main() {
 	flag.BoolVar(&ver, "version", false, "The version of media swapper")
+	flag.BoolVar(&help, "help", false, "Show command usage instructions and help")
 	flag.Var(&bin, "bin", "The location of the ffmpeg or avconv binary")
-	flag.Var(&src, "src", "The source directory of mkv/m4a files or an individual mkv/m4a file to swap to mp4/mp3")
 	flag.Parse()
+
+	if help {
+		fmt.Println(usage)
+		os.Exit(0)
+	}
 
 	if ver {
 		fmt.Printf("Version: %s\nCommit: %s\nDate: %s\n", version, commit, date)
@@ -58,10 +69,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	if src.Path == "" {
-		fmt.Fprintln(os.Stderr, "The -src flag must be specified")
+	if len(os.Args) == 1 {
+		fmt.Fprintln(os.Stderr, "A source must be specified")
 		os.Exit(1)
 	}
+
+	src := pathflag.Path{}
+	src.Set(os.Args[1])
 
 	files, err := fs.GetSwappableFiles(src)
 	if err != nil {
