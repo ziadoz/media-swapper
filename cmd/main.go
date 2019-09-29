@@ -29,7 +29,7 @@ var (
 
 var usage = `Media Swapper is a simple tool for container swapping m4a audio to mp3, and mkv video to mp4.
 
-Usage: media-swapper [--src=<path>] <path>
+Usage: media-swapper [--bin=<path>] <path>
        media-swapper --help
        media-swapper --version`
 
